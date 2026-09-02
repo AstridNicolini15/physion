@@ -147,6 +147,7 @@ def compute_tuning_response_per_cells(data, Episodes,
     RESPONSES = np.zeros((data.nROIs, len(shifted_angle)))
     semRESPONSES = np.zeros((data.nROIs, len(shifted_angle)))
     Ntrials = np.zeros((data.nROIs, len(shifted_angle)), dtype=int)
+    STDvalues = np.zeros((data.nROIs, len(shifted_angle)))
 
     for roi in range(data.nROIs):
         for angle, value, std, ntrials in zip(\
@@ -164,6 +165,8 @@ def compute_tuning_response_per_cells(data, Episodes,
             RESPONSES[roi,iangle] = value
             semRESPONSES[roi,iangle] = std/np.sqrt(ntrials)
             Ntrials[roi,iangle] = ntrials
+            STDvalues[roi,iangle] = std
+
 
     return {'Responses':np.array(RESPONSES),
             'semResponses':np.array(semRESPONSES),
@@ -171,7 +174,7 @@ def compute_tuning_response_per_cells(data, Episodes,
             'shifted_angle':np.array(shifted_angle),
             'prefered_angles':np.array(prefered_angles),
             'significant_ROIs':np.array(significant),
-            'std-values':summary['std-value'], 
+            'std-values':np.array(STDvalues), 
             'ntrials': Ntrials}
 
 
