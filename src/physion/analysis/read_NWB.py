@@ -710,7 +710,7 @@ class Data:
         """
         if hasattr(self, quantity) : 
 
-            setattr(self, 't_Deconvolved' + quantity, self.t_dFoF)
+            setattr(self, 't_Deconvolved_' + quantity, self.t_dFoF)
             fsignal = getattr(self, quantity)
             setattr(self, 'Deconvolved_' + quantity,
                     oasis(fsignal, 
