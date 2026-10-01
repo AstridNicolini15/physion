@@ -13,7 +13,7 @@ def stat_test_for_evoked_responses(ep,
                                    episode_cond=None,
                                    response_args={},
                                    interval_pre=[-2,0], 
-                                   interval_post=[1,3],
+                                   interval_post=[1,2],
                                    test='wilcoxon',
                                    sign='positive',
                                    verbose=True):

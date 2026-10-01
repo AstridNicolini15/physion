@@ -7,6 +7,7 @@ def compute_sensitivity_per_cells(data, Episodes,
                                   filtering_cond=None,
                                   quantity='dFoF',
                                   angle=0.0,
+                                  nMin_episodes = 2,
                                   verbose=False):
     """
 
@@ -27,6 +28,7 @@ def compute_sensitivity_per_cells(data, Episodes,
                                 response_significance_threshold=response_significance_threshold,
                                 stat_test_props=stat_test_props,
                                 repetition_keys=['repeat', 'angle'],
+                                nMin_episodes = nMin_episodes,
                                 loop_over_cells=True,
                                 verbose=verbose)
     
@@ -38,6 +40,7 @@ def compute_sensitivity_per_cells(data, Episodes,
                             response_significance_threshold=response_significance_threshold,
                             stat_test_props=stat_test_props,
                             repetition_keys=['repeat', 'angle'],
+                            nMin_episodes = nMin_episodes,
                             loop_over_cells=True,
                             verbose=verbose)
 
@@ -49,7 +52,9 @@ def compute_sensitivity_per_cells(data, Episodes,
               'semResponses':semRESPONSES,
               'contrast':summary_positive['contrast'],
               'significant_pos':summary_positive['significant'],
-              'significant_neg':summary_negative['significant']}
+              'significant_neg':summary_negative['significant'],
+              'std-values':summary_positive['std-value'], 
+              'ntrials':summary_positive['ntrials']}
 
     return output
 
@@ -99,6 +104,7 @@ def get_gains(Responses, contrast):
         """ gain from linear fit"""
         return np.array([np.polyfit(contrast, r, 1)[0]\
                         for r in Responses])
+
 
 def plot_contrast_sensitivity(keys,
                               path=os.path.expanduser('~'),

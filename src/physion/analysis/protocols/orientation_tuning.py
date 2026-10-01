@@ -88,6 +88,7 @@ def compute_tuning_response_per_cells(data, Episodes,
                                       nMin_episodes = 2,
                                       start_angle=-22.5, 
                                       angle_range=180,
+                                      plot_orientations_significances = False,
                                       verbose=False):
     """
 
@@ -126,9 +127,6 @@ def compute_tuning_response_per_cells(data, Episodes,
                                            nMin_episodes = nMin_episodes,
                                            verbose=verbose)
         
-    # if significant in at least one orientation
-    significant = (np.sum(summary['significant'], axis=1)>0)
-
     if prefered_angles is None:
         # we calculate the preferred angle from the data
 
@@ -144,17 +142,20 @@ def compute_tuning_response_per_cells(data, Episodes,
                           summary['value'][roi, :])\
                             for roi in range(data.nROIs)])
 
-    RESPONSES = np.zeros((data.nROIs, len(shifted_angle)))
-    semRESPONSES = np.zeros((data.nROIs, len(shifted_angle)))
-    Ntrials = np.zeros((data.nROIs, len(shifted_angle)), dtype=int)
-    STDvalues = np.zeros((data.nROIs, len(shifted_angle)))
+    RESPONSES = np.ones((data.nROIs, len(shifted_angle))) * np.nan
+    semRESPONSES = np.ones((data.nROIs, len(shifted_angle))) * np.nan
+    Ntrials = np.ones((data.nROIs, len(shifted_angle)), dtype=int) * np.nan
+    STDvalues = np.ones((data.nROIs, len(shifted_angle))) * np.nan
+    SIGNIFICANT = np.ones((data.nROIs, len(shifted_angle))) * False 
 
     for roi in range(data.nROIs):
-        for angle, value, std, ntrials in zip(\
+        for angle, value, std, ntrials, significant in zip(\
             summary['angle'],
             summary['value'][roi,:], 
             summary['std-value'][roi,:],
-            summary['ntrials']):
+            summary['ntrials'],
+            summary['significant'][roi,:]
+            ):
 
             new_angle = shift_orientation_according_to_pref(angle,
                                                     pref_angle=prefered_angles[roi],
@@ -166,14 +167,19 @@ def compute_tuning_response_per_cells(data, Episodes,
             semRESPONSES[roi,iangle] = std/np.sqrt(ntrials)
             Ntrials[roi,iangle] = ntrials
             STDvalues[roi,iangle] = std
+            SIGNIFICANT[roi, iangle] = significant
 
+    if plot_orientations_significances : 
+        significant = np.array(SIGNIFICANT).astype(bool)
+    else : 
+        significant = np.array((np.sum(summary['significant'], axis=1)>0)) # if significant in at least one orientation
 
     return {'Responses':np.array(RESPONSES),
             'semResponses':np.array(semRESPONSES),
             'selectivities':np.array(selectivities),
             'shifted_angle':np.array(shifted_angle),
             'prefered_angles':np.array(prefered_angles),
-            'significant_ROIs':np.array(significant),
+            'significant_ROIs': significant,
             'std-values':np.array(STDvalues), 
             'ntrials': Ntrials}
 
