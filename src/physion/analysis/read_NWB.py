@@ -250,8 +250,10 @@ class Data(VisualStimMixin, LocomotionMixin, FaceCameraMixin, OptoMixin, OphysMi
         if self.has_running():
             if absolute:
                 self.running = np.abs(self.nwbfile.acquisition['Running-Speed'].data[:, 0])
+                #self.running = np.abs(self.nwbfile.acquisition['Running-Speed'].data[:])
             else : 
                 self.running = self.nwbfile.acquisition['Running-Speed'].data[:, 0]
+                #self.running = self.nwbfile.acquisition['Running-Speed'].data[:]
 
             self.t_running = tools.build_timestamps(\
                         self.nwbfile.acquisition, 'Running-Speed')
@@ -572,6 +574,7 @@ class Data(VisualStimMixin, LocomotionMixin, FaceCameraMixin, OptoMixin, OphysMi
                    roiIndex=None, 
                    roi_to_neuropil_fluo_inclusion_factor=ROI_TO_NEUROPIL_INCLUSION_FACTOR,
                    neuropil_correction_factor=NEUROPIL_CORRECTION_FACTOR,
+                   roi_specific_neuropil_correction_factor = False,
                    method_for_F0=METHOD,
                    percentile=PERCENTILE,
                    sliding_window=T_SLIDING,
@@ -602,6 +605,8 @@ class Data(VisualStimMixin, LocomotionMixin, FaceCameraMixin, OptoMixin, OphysMi
                                     roi_to_neuropil_fluo_inclusion_factor,
                             neuropil_correction_factor=\
                                     neuropil_correction_factor,
+                            roi_specific_neuropil_correction_factor =\
+                                    roi_specific_neuropil_correction_factor,
                             method_for_F0=method_for_F0,
                             percentile=percentile,
                             sliding_window=sliding_window,
@@ -626,7 +631,7 @@ class Data(VisualStimMixin, LocomotionMixin, FaceCameraMixin, OptoMixin, OphysMi
         setattr(self, 'Zscore_dFoF', 
             (self.dFoF-self.dFoF.mean(axis=0).reshape(1, self.dFoF.shape[1]))/self.dFoF.std(axis=0).reshape(1, self.dFoF.shape[1]))
 
-    def build_Deconvolved(self, Tau=1.3, quantity='dFoF'):
+    def build_Deconvolved(self, Tau=1.3, quantity='dFoF', verbose = False):
         """
         use the oasis library to deconvolve the fluorescence signals of choice (default: dFoF)
         """

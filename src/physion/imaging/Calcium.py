@@ -195,6 +195,7 @@ def compute_neuropil_facor(F, Fneu):
 def compute_dFoF(data,  
                  roi_to_neuropil_fluo_inclusion_factor=ROI_TO_NEUROPIL_INCLUSION_FACTOR,
                  neuropil_correction_factor=NEUROPIL_CORRECTION_FACTOR,
+                 roi_specific_neuropil_correction_factor = False,
                  method_for_F0=METHOD,
                  percentile=PERCENTILE,
                  sliding_window=T_SLIDING,
@@ -242,7 +243,13 @@ def compute_dFoF(data,
         print('neuropil_correction_factor set to 0 !')
         neuropil_correction_factor=0.
 
-    data.neuropil_correction_factor = neuropil_correction_factor
+    if roi_specific_neuropil_correction_factor : 
+        import sys
+        sys.path.insert(0, '/home/user/lab-notebook/astrid')
+        from Allen_Institute_r_neuropil import estimate_contamination_ratios
+        print("allen being done")
+        neuropil_correction_factor = [estimate_contamination_ratios(data.rawFluo[roi,:], data.neuropil[roi,:])['r'] for roi in range(data.nROIs)]
+        neuropil_correction_factor = np.array(neuropil_correction_factor).reshape(data.nROIs,1)
 
     #######################################################################
     
@@ -303,6 +310,9 @@ def compute_dFoF(data,
     # we resrict the rawFluo and neuropil to valid ROIs
     data.rawFluo = data.rawFluo[data.valid_roiIndices,:]
     data.neuropil = data.neuropil[data.valid_roiIndices,:]
+
+    if roi_specific_neuropil_correction_factor : 
+        data.neuropil_correction_factor = neuropil_correction_factor[data.valid_roiIndices]
 
     if with_correctedFluo_and_F0:
         data.correctedFluo0 = correctedFluo0[data.valid_roiIndices,:]
