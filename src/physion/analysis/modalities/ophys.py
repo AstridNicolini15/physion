@@ -4,7 +4,7 @@ optical physiology: calcium imaging (suite2p output)
 methods of physion.analysis.read_NWB.Data (see the Data class)
 """
 import numpy as np
-from physion.imaging.Calcium import METHOD, NEUROPIL_CORRECTION_FACTOR, PERCENTILE, ROI_TO_NEUROPIL_INCLUSION_FACTOR, ROI_TO_NEUROPIL_INCLUSION_FACTOR_METRIC, T_SLIDING, compute_dFoF
+from physion.imaging.Calcium import METHOD, NEUROPIL_CORRECTION_FACTOR, PERCENTILE, ROI_TO_NEUROPIL_INCLUSION_FACTOR, ROI_TO_NEUROPIL_INCLUSION_FACTOR_METRIC, T_SLIDING, compute_dFoF, compute_Zscore_correctedFluo
 from physion.imaging.dcnv import oasis
 from physion.analysis import tools
 
@@ -92,6 +92,7 @@ class OphysMixin:
                    roiIndex=None, 
                    roi_to_neuropil_fluo_inclusion_factor=ROI_TO_NEUROPIL_INCLUSION_FACTOR,
                    neuropil_correction_factor=NEUROPIL_CORRECTION_FACTOR,
+                   roi_specific_neuropil_correction_factor = False,
                    method_for_F0=METHOD,
                    percentile=PERCENTILE,
                    sliding_window=T_SLIDING,
@@ -122,6 +123,8 @@ class OphysMixin:
                                     roi_to_neuropil_fluo_inclusion_factor,
                             neuropil_correction_factor=\
                                     neuropil_correction_factor,
+                            roi_specific_neuropil_correction_factor =\
+                                roi_specific_neuropil_correction_factor,
                             method_for_F0=method_for_F0,
                             percentile=percentile,
                             sliding_window=sliding_window,
@@ -143,6 +146,24 @@ class OphysMixin:
 
         setattr(self, 'Zscore_dFoF', 
             (self.dFoF-self.dFoF.mean(axis=0).reshape(1, self.dFoF.shape[1]))/self.dFoF.std(axis=0).reshape(1, self.dFoF.shape[1]))
+        
+    
+    def build_Zscore(self, quantity = 'dFoF', verbose=True): 
+        
+        if not hasattr(self, quantity):
+            self.build_dFoF(verbose=verbose)
+        
+        quantity_to_zscore = getattr(self, quantity)
+            
+        setattr(self, 'Zscore_' + quantity, zscore(quantity_to_zscore))
+        
+    
+    def set_valid_roiIndices(data,
+                            roi_to_neuropil_fluo_inclusion_factor=ROI_TO_NEUROPIL_INCLUSION_FACTOR,
+                            roi_to_neuropil_fluo_inclusion_factor_metric=ROI_TO_NEUROPIL_INCLUSION_FACTOR_METRIC,
+                            ): 
+
+        pass 
 
     def build_Deconvolved(self, Tau=1.3, 
                           quantity='dFoF',

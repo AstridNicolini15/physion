@@ -4,6 +4,10 @@ from scipy.signal import convolve, windows
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 import time
+import sys
+sys.path.insert(0, '/home/user/lab-notebook/astrid')
+from Allen_Institute_r_neuropil import estimate_contamination_ratios
+from scipy.stats import zscore
 
 ##############################################################################
 # -------------------------------------------------------------------------- #
@@ -158,17 +162,17 @@ def compute_F0(data, F,
 def compute_neuropil_facor(F, Fneu):
 
     slopes_list = []
-    per = np.arange(5, 101, 5)
+    per = np.arange(15, 91, 5)
 
     for k in range(len(F)): #loop on each neuron
-        b = 0
+        b = 10
         All_F, percentile_Fneu = [], []
         for q in per:
             current_percentile = np.percentile(Fneu[k], q)
             previous_percentile = np.percentile(Fneu[k], b)
             index_percentile_q = np.where((previous_percentile <= Fneu[k]) & (Fneu[k] < current_percentile))
             F_percentile_q = F[k][index_percentile_q]
-            perc_F_q = np.percentile(F_percentile_q, 5)
+            perc_F_q = np.percentile(F_percentile_q, 10)
             percentile_Fneu.append(current_percentile)
             All_F.append(perc_F_q)
             b = q
@@ -187,10 +191,11 @@ def compute_neuropil_facor(F, Fneu):
             alphas.append(slopes_list[q])
         else :
             valid_ROIs.append(False)
+            alphas.append(np.nan) #for shape consistency when computation in compute_dFoF
     
     alpha = np.mean(alphas)
 
-    return alpha, np.array(valid_ROIs)
+    return alpha, np.array(valid_ROIs), alphas
 
 def compute_dFoF(data,  
                  roi_to_neuropil_fluo_inclusion_factor=ROI_TO_NEUROPIL_INCLUSION_FACTOR,
@@ -228,7 +233,11 @@ def compute_dFoF(data,
 
     # Step 0) -> compute neuropil correction factor if needed
     if with_computed_neuropil_fact :
-        neuropil_correction_factor, valid_ROIs_neuropil = compute_neuropil_facor(data.rawFluo, data.neuropil)
+        mean_neuropil_correction_factor, valid_ROIs_neuropil, neuropil_correction_factor = compute_neuropil_facor(data.rawFluo, data.neuropil)
+        neuropil_correction_factor = np.array(neuropil_correction_factor).reshape(len(neuropil_correction_factor),1)
+        #data.rawFluo = data.rawFluo[valid_ROIs_neuropil]
+        #data.neuropil = data.neuropil[valid_ROIs_neuropil]
+        
         if verbose :
             print('neuropil correction factor computed:', neuropil_correction_factor)
             if np.sum(~valid_ROIs_neuropil)>0:
@@ -244,9 +253,6 @@ def compute_dFoF(data,
         neuropil_correction_factor=0.
 
     if roi_specific_neuropil_correction_factor : 
-        import sys
-        sys.path.insert(0, '/home/user/lab-notebook/astrid')
-        from Allen_Institute_r_neuropil import estimate_contamination_ratios
         print("allen being done")
         neuropil_correction_factor = [estimate_contamination_ratios(data.rawFluo[roi,:], data.neuropil[roi,:])['r'] for roi in range(data.nROIs)]
         neuropil_correction_factor = np.array(neuropil_correction_factor).reshape(data.nROIs,1)
