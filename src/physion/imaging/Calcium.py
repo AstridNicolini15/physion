@@ -7,7 +7,6 @@ import time
 import sys
 sys.path.insert(0, '/home/user/lab-notebook/astrid')
 from Allen_Institute_r_neuropil import estimate_contamination_ratios
-from scipy.stats import zscore
 
 ##############################################################################
 # -------------------------------------------------------------------------- #
@@ -205,3 +204,13 @@ def compute_neuropil_factor(F, Fneu,
     dx = x-x.mean(axis=1, keepdims=True)
     dy = y-y.mean(axis=1, keepdims=True)
     return np.sum(dx*dy, axis=1)/np.sum(dx**2, axis=1)
+
+def compute_neuropil_factor_allen(F, Fneu):
+
+    neuropil_correction_factor = []
+    for roi in range(F.shape[0]) : 
+        r = estimate_contamination_ratios(F[roi,:], Fneu[roi,:])['r'] 
+        neuropil_correction_factor.append(r)
+
+    neuropil_correction_factor = np.array(neuropil_correction_factor)
+    return neuropil_correction_factor

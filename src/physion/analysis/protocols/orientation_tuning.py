@@ -88,7 +88,7 @@ def compute_tuning_response_per_cells(data, Episodes,
                                       nMin_episodes = 2,
                                       start_angle=-22.5, 
                                       angle_range=180,
-                                      plot_orientations_significances = False,
+                                      keep_all_orientations_significances = False,
                                       verbose=False):
     """
 
@@ -169,7 +169,7 @@ def compute_tuning_response_per_cells(data, Episodes,
             STDvalues[roi,iangle] = std
             SIGNIFICANT[roi, iangle] = significant
 
-    if plot_orientations_significances : 
+    if keep_all_orientations_significances : 
         significant = np.array(SIGNIFICANT).astype(bool)
     else : 
         significant = np.array((np.sum(summary['significant'], axis=1)>0)) # if significant in at least one orientation
