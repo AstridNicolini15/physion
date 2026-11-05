@@ -379,9 +379,9 @@ class OphysMixin:
                         np.min(self.neuropil_correction_factors), np.max(self.neuropil_correction_factors)))
         else:
             self.neuropil_correction_factors = np.ones(self.nROIs)*neuropil_correction_factor
-                print('neuropil correction factors computed: %.2f +/- %.2f (min: %.2f, max: %.2f)' %\
-                       (np.mean(self.neuropil_correction_factors), np.std(self.neuropil_correction_factors),
-                        np.min(self.neuropil_correction_factors), np.max(self.neuropil_correction_factors)))
+            print('neuropil correction factors computed: %.2f +/- %.2f (min: %.2f, max: %.2f)' %\
+                    (np.mean(self.neuropil_correction_factors), np.std(self.neuropil_correction_factors),
+                    np.min(self.neuropil_correction_factors), np.max(self.neuropil_correction_factors)))
 
         # 3) neuropil correction
         self.build_correctedFluo(neuropil_correction_factor=self.neuropil_correction_factors,
