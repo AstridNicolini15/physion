@@ -309,8 +309,9 @@ class OphysMixin:
 
     def build_dFoF(self,
                    neuropil_correction_factor=NEUROPIL_CORRECTION_FACTOR,
-                   computed_neuropil_fact_method='slope',
+                   computed_neuropil_fact_method=None,
                    keep_rois_with_neuropil_factor_in=None,
+                   discard_negative_F0=True,
                    method_for_F0=METHOD,
                    percentile=PERCENTILE,
                    sliding_window=T_SLIDING,
@@ -320,7 +321,7 @@ class OphysMixin:
                    specific_time_sampling=None,
                    interpolation='linear',
                    with_correctedFluo_and_F0=False,
-                   verbose=True):
+                   verbose=False):
         """
         creates self.dFoF = (correctedFluo-F0)/F0 and self.t_dFoF, from the raw data:
 
@@ -359,7 +360,7 @@ class OphysMixin:
                             interpolation=interpolation,
                             verbose=verbose)
         self.t_dFoF = self.t_rawFluo
-
+        
         # 2) neuropil correction factor of each ROI
         if computed_neuropil_fact_method:
             self.build_neuropil_correction_factors(computed_neuropil_fact_method)
@@ -381,7 +382,7 @@ class OphysMixin:
 
         # 5) ROI selection
         self.set_valid_roiIndices(\
-                discard_negative_F0=True,
+                discard_negative_F0=discard_negative_F0,
                 keep_rois_with_neuropil_factor_in=keep_rois_with_neuropil_factor_in,
                 roi_to_neuropil_fluo_inclusion_factor=roi_to_neuropil_fluo_inclusion_factor,
                 roi_to_neuropil_fluo_inclusion_factor_metric=\
