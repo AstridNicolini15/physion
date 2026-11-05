@@ -265,6 +265,7 @@ class OphysMixin:
                                                         **kwargs)
 
     def build_correctedFluo(self,
+                            specific_time_sampling=None, interpolation='linear',
                             neuropil_correction_factor=NEUROPIL_CORRECTION_FACTOR,
                             verbose=True):
         """
@@ -274,6 +275,15 @@ class OphysMixin:
                                         or an array with one factor per ROI
             (needs self.rawFluo and self.neuropil)
         """
+
+        # we build rawFluo and neuropil if they do not exist already
+        if not hasattr(self, 'rawFluo'):
+            self.build_rawFluo(verbose=verbose, 
+                    specific_time_sampling=specific_time_sampling, interpolation=interpolation)
+        if not hasattr(self, 'neuropil'):
+            self.build_neuropil(verbose=verbose,
+                    specific_time_sampling=specific_time_sampling, interpolation=interpolation)
+
         factor = np.asarray(neuropil_correction_factor, dtype=float)
         if (factor.ndim==0) and not (0<=factor<=1):
             print('[!!] neuropil_correction_factor has to be in the interval [0.,1]')
@@ -312,6 +322,7 @@ class OphysMixin:
                    computed_neuropil_fact_method=None,
                    keep_rois_with_neuropil_factor_in=None,
                    discard_negative_F0=True,
+                   keep_rois_with_neuropil_factor_in=None,
                    method_for_F0=METHOD,
                    percentile=PERCENTILE,
                    sliding_window=T_SLIDING,
@@ -370,6 +381,11 @@ class OphysMixin:
                         np.min(self.neuropil_correction_factors), np.max(self.neuropil_correction_factors)))
         else:
             self.neuropil_correction_factors = np.ones(self.nROIs)*neuropil_correction_factor
+                print('neuropil correction factors computed: %.2f +/- %.2f (min: %.2f, max: %.2f)' %\
+                       (np.mean(self.neuropil_correction_factors), np.std(self.neuropil_correction_factors),
+                        np.min(self.neuropil_correction_factors), np.max(self.neuropil_correction_factors)))
+        else:
+            self.neuropil_correction_factors = np.ones(self.nROIs)*neuropil_correction_factor
 
         # 3) neuropil correction
         self.build_correctedFluo(neuropil_correction_factor=self.neuropil_correction_factors,
@@ -382,7 +398,7 @@ class OphysMixin:
 
         # 5) ROI selection
         self.set_valid_roiIndices(\
-                discard_negative_F0=discard_negative_F0,
+                discard_negative_F0=True,
                 keep_rois_with_neuropil_factor_in=keep_rois_with_neuropil_factor_in,
                 roi_to_neuropil_fluo_inclusion_factor=roi_to_neuropil_fluo_inclusion_factor,
                 roi_to_neuropil_fluo_inclusion_factor_metric=\

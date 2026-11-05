@@ -2,7 +2,7 @@
 
 > *installation instructions on an experimental setup
 
-> *so far tested in Windows 10 and Windows 11, Need to use `Python 3.10`*
+> *so far tested in Windows 10 and Windows 11, with `Python 3.10`*
 
 Executables and drivers are stored in the following [drive folder](https://drive.google.com/drive/folders/1z_9GERKwQc6SKhsBnSZh-2scl_wdgHQs?usp=drive_link)
 
@@ -19,8 +19,8 @@ With the following settings:
 ### A.2) Create the `acquisition` environment
 
 ```
-cd work/physion/docs/install
-conda env create -n acquisition -f acquisition.yml
+conda create -n acquisition python=3.10 -y
+conda activate acquisition
 ```
 
 For the packages (**After** the NIdaq, ... below settings), install them in the following order:
@@ -29,12 +29,21 @@ pip install nidaqmx
 pip install Downloads\spinnaker_python-4.2.0.83-cp310-cp310-win_amd64.whl # assumes you extracted in ~/Downloads
 pip install git+https://github.com/yzerlaut/simple_pyspin
 pip install opencv-python numpy scipy scikit-image PyQt5 pyqtgraph==0.13.3 natsort pyqtdarktheme ffmpeg==1.4 pynwb==2.5.0 hdmf==3.11.0 numba matplotlib
+pip install pyglet imageio-ffmpeg # visual stimulation (presentation and movies)
 ```
 
 ### A.3) Install other useful packages
 
 ```
 conda install git vim
+```
+
+### A.4) Get the source code
+
+In `~/work/` (the location assumed in the launchers below):
+```
+cd %UserProfile%\work
+git clone https://github.com/yzerlaut/physion --recurse-submodules
 ```
 
 ## B) NI DAQ setup
@@ -64,6 +73,10 @@ Set the visual stimulation screen as the second monitor
 - Put a black background on the Desktop (because this is what the mouse will see when not running any experiment)
 
 - Hide the taskbar on the non-primary display
+
+- Keep the vertical synchronization enabled in the graphics driver settings (e.g. NVIDIA Control Panel: "Vertical sync" set to "Use the 3D application setting" or "On"), and set the stimulation screen at a refresh rate that is a multiple of the movie frame rate (e.g. 60 Hz for 30 fps movies)
+
+- Rebuild the visual stimulation protocols after updating physion (lossless `movie.mkv` format), and test the display with: `python -m physion.visual_stim.show path\to\protocol-folder --fullscreen --rig <Rig name>`
 
 
 ## D) FLIR Camera setup
@@ -164,12 +177,12 @@ pip install pycromanager
 
 Setup test:
 ```
-python -m physion.harware.QCamera.camera_core_test
+python -m physion.hardware.QCamera.camera_core_test
 ```
 
 Frame rate test:
 ```
-python -m physion.harware.QCamera.camera_core_test
+python -m physion.hardware.QCamera.frame_rate_test
 ```
 
 N.B.  [!!] `MicroManager` needs to be running to access the camera via the API
@@ -179,7 +192,7 @@ N.B.  [!!] `MicroManager` needs to be running to access the camera via the API
 
 Create Windows shortcut to launch the Acquisition and Analysis programs.
 
-On the desktop, right click -> `New` -> `Shortcut` and modigy its `Properties as follows: 
+On the desktop, right click -> `New` -> `Shortcut` and modify its `Properties` as follows: 
 
 ### G.1) Analysis Program
 

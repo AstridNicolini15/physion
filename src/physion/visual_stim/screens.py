@@ -1,8 +1,9 @@
 """
 
 [!!]
-when setting up a new screen:
-    --> need to also modify visual_stim/show.py
+when setting up a new rig:
+    --> set the screen positions in visual_stim/show.py (`window_settings`)
+        or add a "display-indices" key (index of each screen in the OS list)
 [!!]
 
 """
@@ -86,8 +87,8 @@ SCREENS = {
         'resolution':[1280, 1024],
         'width':34.0, # in cm
         'height':27.5, # in cm
-        'distance_front':20.0, # in cm
-        'height_from_base':9.0, # in cm
+        'distance_front':18.0, # in cm
+        'height_from_base':7.5, # in cm
         'fullscreen':True,
         'monitoring_square':{'size':80,
                              'location':'bottom-left',
