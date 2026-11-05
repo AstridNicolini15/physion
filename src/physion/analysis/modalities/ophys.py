@@ -275,6 +275,7 @@ class OphysMixin:
                                         or an array with one factor per ROI
             (needs self.rawFluo and self.neuropil)
         """
+        self.t_correctedFluo = self.Fluorescence.timestamps[:]
 
         # we build rawFluo and neuropil if they do not exist already
         if not hasattr(self, 'rawFluo'):
